@@ -1,0 +1,32 @@
+name: Test Python Package from Nexus
+
+# Evento que dispara el workflow
+on:
+  push:
+    branches:
+      - main   # Solo se ejecuta al hacer push a esta rama
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # Máquina virtual donde corre el workflow
+
+    steps:
+      # Paso 1: Clonar el repositorio
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Paso 2: Instalar Python 3.10
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Paso 3: Instalar la librería desde Nexus usando autenticación
+      - name: Install dependency from Nexus
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}   # Secreto con el usuario
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}   # Secreto con la contraseña
+        run: |
+          pip install milib-ejemplo \
+            --index-url http://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@ec2-34-204-42-225.compute-1.amazonaws.com:8081/repository/DevOps/simple/ \
+            --trusted-host ec2-34-204-42-225.compute-1.amazonaws.com
